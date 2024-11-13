@@ -129,7 +129,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        string fileName = "d:/pr22_1/input.txt";
+        string fileName = "d:/pr22_2/input.txt";
 
         int[,] adMatrix;
         int size;
