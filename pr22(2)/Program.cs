@@ -33,9 +33,10 @@ class Graph
         {
             int currentV = queue.Dequeue(); // извлекает вершину из очереди
 
-            for (int i = 0; i < adMatrix.GetLength(0); i++)//i сосед верш
+            for (int i = 0; i < adMatrix.GetLength(0); i++) // проверяет смежные вершины
             {
-                if (adMatrix[currentV, i] == weight && !visited[i])
+                if (adMatrix[currentV, i] == weight && !visited[i]) // если не была посещена, она добавляется в очередь
+                                                                    // и помечается как посещенная, а также добавляется в список result
                 {
                     queue.Enqueue(i);//добав i в очере
                     visited[i] = true;
@@ -46,6 +47,7 @@ class Graph
         return result;
     }
 
+    // Метод NovSet сбрасывает массив visited, помечая все вершины как непосещенные
     public void NovSet()
     {
         for (int i = 0; i < visited.Length; i++)
@@ -54,13 +56,16 @@ class Graph
         }
     }
 
+    // Метод Dijkstr реализует алгоритм Дейкстры для нахождения кратчайших путей от вершины v
     public long[] Dijkstr(int v, out int[] p)
     {
-        long[] d = new long[adMatrix.GetLength(0)];//кратчай расстоян
-        p = new int[adMatrix.GetLength(0)];//откуда мы пришли в дан верш
-        Array.Fill(d, int.MaxValue);
+        long[] d = new long[adMatrix.GetLength(0)]; // массив расстояний от начальной вершины v до всех остальных
+        p = new int[adMatrix.GetLength(0)]; // массив, в котором хранится информация, откуда пришли в каждую вершину
+        Array.Fill(d, int.MaxValue); // заполняем
         d[v] = 0;
 
+        // Главный цикл выбирает непосещенную вершину с минимальным расстоянием,
+        // помечает её как посещенную и обновляет расстояния до её соседей
         for (int i = 0; i < adMatrix.GetLength(0); i++)
         {
             int minIndex = -1;
@@ -77,7 +82,7 @@ class Graph
                 break;
             }
 
-            visited[minIndex] = true;//помеч как посещ
+            visited[minIndex] = true; //помеч как посещ
 
             for (int j = 0; j < adMatrix.GetLength(0); j++)
             {
@@ -88,17 +93,18 @@ class Graph
                 }
             }
         }
-
         return d;
     }
 
+    // Метод InMaxDistance находит вершины, которые находятся на наибольшем расстоянии от вершины v
     public void InMaxDistance(int v)
     {
-        NovSet();
+        NovSet(); // сбрасывает метки посещения с помощью NovSet
         int[] p;
-        long[] d = Dijkstr(v, out p);//кратч расстоян
+        long[] d = Dijkstr(v, out p); // Вычисляет кратчайшие расстояния d с помощью алгоритма Дейкстры
         long max = 0;
 
+        // Находит максимальное расстояние max среди доступных вершин
         for (int i = 0; i < p.Length; i++)
         {
             if (d[i] > max && d[i] != int.MaxValue)
@@ -107,10 +113,12 @@ class Graph
             }
         }
 
+        // Если max == 0, выводит, что другие вершины недостижимы
         if (max == 0)
         {
             Console.WriteLine("Из заданной вершины другие вершины недостижимы");
         }
+        // Иначе выводит вершины, удаленные на максимальное расстояние max
         else
         {
             Console.Write($"На наибольшем удалении от вершины {v} находятся вершины: ");
@@ -161,7 +169,7 @@ class Program
             Console.Write(node + " ");
         }
 
-        // Нахождение наиболее удаленных точек
+        // Находит и выводит вершины, наиболее удаленные от startV
         graph.InMaxDistance(startV);
     }
 }
