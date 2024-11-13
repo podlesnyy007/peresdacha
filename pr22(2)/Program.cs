@@ -10,26 +10,28 @@ using System.IO;
 
 class Graph
 {
-    private int[,] adMatrix;
-    private bool[] visited;
+    private int[,] adMatrix; // двумерный массив (матрица смежности) для хранения весов ребер между вершинами
+    private bool[] visited; // массив для отслеживания посещенных вершин при поиске по графу
 
+    // конструктор, принимающий матрицу смежности matrix и сохраняющий её в поле adMatrix
     public Graph(int[,] matrix)
     {
         adMatrix = matrix;
-        visited = new bool[matrix.GetLength(0)];
+        visited = new bool[matrix.GetLength(0)]; // создает массив visited длиной, равной количеству вершин графа (количеству строк/столбцов матрицы)
     }
 
+    // Метод FindNode находит вершины, связанные с заданной вершиной startV через ребра с весом weight
     public List<int> FindNode(int startV, int weight)
     {
-        Queue<int> queue = new Queue<int>();
-        queue.Enqueue(startV);//добав верш в очередь
-        visited[startV] = true;//помеч начал верш как посещ
+        Queue<int> queue = new Queue<int>(); // создается очередь для обхода графа
+        queue.Enqueue(startV); // начальная вершина startV добавляется в очередь
+        visited[startV] = true; // помечаем начальную вершину как посещенную
 
-        List<int> result = new List<int>();//соед реб задан веса
+        List<int> result = new List<int>(); //соединяет ребра заданнного веса
 
-        while (queue.Count > 0)
+        while (queue.Count > 0) // выполняется, пока есть вершины в очереди
         {
-            int currentV = queue.Dequeue();//извл верш из начала очереди
+            int currentV = queue.Dequeue(); // извлекает вершину из очереди
 
             for (int i = 0; i < adMatrix.GetLength(0); i++)//i сосед верш
             {
@@ -41,7 +43,6 @@ class Graph
                 }
             }
         }
-
         return result;
     }
 
