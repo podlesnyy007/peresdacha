@@ -1,0 +1,208 @@
+Давайте подробно разберем код программы на C#, которая выполняет следующее:
+
+Читает последовательность целых чисел из файла input.txt.
+Строит бинарное дерево поиска (BST) по этим числам.
+Удаляет все узлы с нечетными значениями из дерева.
+Выводит дерево до и после удаления.
+Разберем код пошагово.
+
+Класс Node
+Класс Node представляет узел бинарного дерева поиска.
+
+csharp
+Копировать код
+public class Node
+{
+    public int Value;
+    public Node Left;
+    public Node Right;
+
+    public Node(int value)
+    {
+        Value = value;
+        Left = null;
+        Right = null;
+    }
+}
+Поля класса:
+Value — значение узла (целое число).
+Left — ссылка на левый дочерний узел.
+Right — ссылка на правый дочерний узел.
+Конструктор:
+Конструктор Node(int value) инициализирует значение узла и устанавливает ссылки на дочерние узлы в null.
+
+Класс BinaryTree
+Класс BinaryTree представляет само дерево и включает методы для вставки и удаления узлов.
+
+csharp
+Копировать код
+public class BinaryTree 
+{
+    public Node root;
+Поле:
+root — корневой узел дерева, с которого начинается его структура.
+Метод Insert
+Метод Insert добавляет узел в дерево, используя вспомогательную рекурсивную функцию InsertRec.
+
+csharp
+Копировать код
+public void Insert(int value)
+{
+    root = InsertRec(root, value);
+}
+
+private Node InsertRec(Node root, int value)
+{
+    if (root == null)
+    {
+        root = new Node(value);
+        return root;
+    }
+
+    if (value < root.Value)
+    {
+        root.Left = InsertRec(root.Left, value);
+    }
+    else if (value > root.Value)
+    {
+        root.Right = InsertRec(root.Right, value);
+    }
+
+    return root;
+}
+Если текущий узел (root) пуст, создается новый узел с данным значением value.
+Если value меньше значения текущего узла, рекурсивно вызываем InsertRec для левого дочернего узла.
+Если value больше, вызываем InsertRec для правого дочернего узла.
+Возвращаем обновленный узел для формирования цепочки дерева.
+Вспомогательный метод Del
+Этот метод помогает удалить узел, когда у него есть два дочерних узла.
+
+csharp
+Копировать код
+private static void Del(Node t, ref Node tr)
+{
+    if (tr.Right != null)
+    {
+        Del(t, ref tr.Right);
+    }
+    else
+    {
+        t.Value = tr.Value;
+        tr = tr.Left;
+    }
+}
+Метод Del находит максимальный узел в левом поддереве и заменяет им значение удаляемого узла.
+
+Если у узла tr есть правый дочерний элемент, рекурсивно находим его.
+Иначе, значение узла t заменяется значением tr, а tr перемещается в левый дочерний узел.
+Метод Delete
+Этот метод удаляет все узлы с нечетными значениями. Здесь два метода Delete: один принимает узел, а другой — узел и значение.
+
+Delete(ref Node t)
+csharp
+Копировать код
+private void Delete(ref Node t)
+{
+    if (t != null)
+    {
+        if (t.Left != null)
+        {
+            Delete(ref t.Left);
+        }
+        if (t.Right != null)
+        {
+            Delete(ref t.Right);
+        }
+        if (t.Value % 2 != 0)  // Условие для нечетных значений
+        {
+            Delete(ref root, t.Value);
+        }
+    }
+}
+Если узел t не пуст, то для левого и правого дочернего узла рекурсивно вызывается Delete.
+Если значение узла t нечетное (t.Value % 2 != 0), оно удаляется вызовом метода Delete(ref root, t.Value).
+Delete(ref Node t, int key)
+Этот метод удаляет узел с заданным значением key.
+
+csharp
+Копировать код
+private static void Delete(ref Node t, int key)
+{
+    if (t == null)
+    {
+        return;
+    }
+
+    if (key < t.Value)
+    {
+        Delete(ref t.Left, key);
+    }
+    else if (key > t.Value)
+    {
+        Delete(ref t.Right, key);
+    }
+    else
+    {
+        if (t.Left == null)
+        {
+            t = t.Right;
+        }
+        else if (t.Right == null)
+        {
+            t = t.Left;
+        }
+        else
+        {
+            Del(t, ref t.Left);
+        }
+    }
+}
+Если узел пуст, выходим из метода.
+Если key меньше текущего значения, идем в левое поддерево.
+Если больше, идем в правое поддерево.
+Если key совпадает с t.Value, удаляем узел:
+Если у него нет левого дочернего узла, t становится правым дочерним узлом.
+Если нет правого узла, t становится левым дочерним узлом.
+Если есть оба дочерних узла, вызывается Del для замены значения.
+Класс Program
+Основная программа читает файл input.txt, строит дерево, удаляет нечетные узлы и выводит дерево до и после удаления.
+
+csharp
+Копировать код
+class Program
+{
+    static void Main()
+    {
+        BinaryTree tree = new BinaryTree(); 
+
+        string[] lines = File.ReadAllText("input.txt").Split(' ');
+        foreach (string line in lines)
+        {
+            tree.Insert(int.Parse(line));
+        }
+
+        Console.WriteLine("Дерево до удаления нечетных узлов:");
+        PrintInOrder(tree.root);
+
+        tree.Delete(ref tree.root);
+
+        Console.WriteLine("Дерево после удаления нечетных узлов:");
+        PrintInOrder(tree.root);
+    }
+
+    static void PrintInOrder(Node node)
+    {
+        if (node != null)
+        {
+            PrintInOrder(node.Left);
+            Console.Write(node.Value + " ");
+            PrintInOrder(node.Right);
+        }
+    }
+}
+Объяснение:
+Читаем числа из файла input.txt, создаем и вставляем каждое значение в дерево.
+Печатаем дерево до удаления нечетных узлов.
+Удаляем все узлы с нечетными значениями.
+Печатаем дерево после удаления, выполняя обход дерева (in-order).
+Метод PrintInOrder выводит узлы дерева по порядку: от самого маленького к самому большому, что полезно для проверки структуры бинарного дерева поиска.
