@@ -33,25 +33,60 @@ public class BinaryTree
         root = InsertRec(root, value);
     }
 
-    // Рекурсивный вспомогательный, который размещает новое значение по правилам бинарного дерева поиска
+    // Рекурсивный вспомогательный метод, который размещает новое значение по правилам дерева бинарного поиска
     private Node InsertRec(Node root, int value)
     {
-        if (root == null) // Если root == null, создается новый узел, который становится корнем дерева
+        if (root == null) // создается новый узел, который становится корнем дерева
         {
             root = new Node(value);
             return root;
         }
 
-        if (value < root.Value) // Если value < root.Value, то значение добавляется в левое поддерево
+        if (value < root.Value) // значение добавляется в левое поддерево
         {
             root.Left = InsertRec(root.Left, value);
         }
-        else if (value > root.Value) // Если value > root.Value, значение добавляется в правое поддерево
+
+        else if (value > root.Value) // значение добавляется в правое поддерево
         {
             root.Right = InsertRec(root.Right, value);
         }
-
         return root;
+    }
+
+    // Метод удаляет узел по его значению, соблюдая структуру бинарного дерева поиска
+    private static void DeleteNode(ref Node t, int key)
+    {
+        if (t == null)
+        {
+            return;
+        }
+
+        // Поиск узла, который нужно удалить
+        if (key < t.Value) // нужный узел находится в левом поддереве
+        {
+            DeleteNode(ref t.Left, key);
+        }
+        else if (key > t.Value) // нужный узел находится в правом поддереве
+        {
+            DeleteNode(ref t.Right, key);
+        }
+        // Удаление найденного узла
+        else
+        {
+            if (t.Left == null) // У узла нет левого поддерева
+            {
+                t = t.Right; // переназначаем узел t на его правого потомка
+            }
+            else if (t.Right == null) // У узла нет правого поддерева
+            {
+                t = t.Left; // заменяем узел его левым потомком
+            }
+            else // У узла есть оба поддерева
+            {
+                Del(t, ref t.Left);
+            }
+        }
     }
 
     //Метод Del находит самый правый (максимальный) узел в левом поддереве,
@@ -85,76 +120,41 @@ public class BinaryTree
             }
         }
     }
+}
 
-    // Метод удаляет узел по его значению, соблюдая структуру бинарного дерева поиска
-    private static void DeleteNode(ref Node t, int key)
+class Program
+{
+    static void Main()
     {
-        if (t == null)
+        // Создается пустое бинарное дерево
+        BinaryTree tree = new BinaryTree();
+
+        // Чтение чисел из файла и добавление их в дерево
+        string[] lines = File.ReadAllText("input.txt").Split(' ');
+        foreach (string line in lines)
         {
-            return;
+            tree.Insert(int.Parse(line));
         }
 
-        // Поиск узла, который нужно удалить
-        if (key < t.Value) // Если ключ меньше значения узла, то нужный узел находится в левом поддереве
-        {
-            DeleteNode(ref t.Left, key);
-        }
-        else if (key > t.Value) // Если ключ больше значения узла, то нужный узел находится в правом поддереве
-        {
-            DeleteNode(ref t.Right, key);
-        }
-        // Удаление найденного узла
-        else
-        {
-            if (t.Left == null) // У узла нет левого поддерева
-            {
-                t = t.Right; // Если у узла нет левого поддерева, переназначаем узел t на его правого потомка
-            }
-            else if (t.Right == null) // У узла нет правого поддерева
-            {
-                t = t.Left; // если у узла нет правого поддерева, заменяем узел его левым потомком
-            }
-            else // У узла есть оба поддерева
-            {
-                Del(t, ref t.Left);
-            }
-        }
+        Console.WriteLine("Дерево до удаления нечетных узлов:");
+        PrintInOrder(tree.root);
+        Console.WriteLine();
+
+        // Удаляем узлы с нечетными значениями
+        tree.DeleteOddNodes(ref tree.root);
+
+        Console.WriteLine("Дерево после удаления нечетных узлов:");
+        PrintInOrder(tree.root);
     }
 
-    class Program
+    // Метод обходит дерево в порядке (левое поддерево → узел → правое поддерево) и выводит все значения узлов
+    static void PrintInOrder(Node node)
     {
-        static void Main()
+        if (node != null)
         {
-            // Создается пустое бинарное дерево
-            BinaryTree tree = new BinaryTree();
-
-            // Чтение чисел из файла и добавление их в дерево
-            string[] lines = File.ReadAllText("input.txt").Split(' ');
-            foreach (string line in lines)
-            {
-                tree.Insert(int.Parse(line));
-            }
-
-            Console.WriteLine("Дерево до удаления нечетных узлов:");
-            PrintInOrder(tree.root);
-            Console.WriteLine();
-
-            // Удаляем узлы с нечетными значениями
-            tree.DeleteOddNodes(ref tree.root);
-
-            Console.WriteLine("Дерево после удаления нечетных узлов:");
-            PrintInOrder(tree.root);
-        }
-
-        // Метод обходит дерево в порядке (левое поддерево → узел → правое поддерево) и выводит все значения узлов
-        static void PrintInOrder(Node node)
-        {
-            if (node != null)
-            {
-                PrintInOrder(node.Left);
-                Console.Write(node.Value + " ");
-                PrintInOrder(node.Right);
-            }
+            PrintInOrder(node.Left);
+            Console.Write(node.Value + " ");
+            PrintInOrder(node.Right);
         }
     }
 }
