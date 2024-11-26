@@ -38,13 +38,12 @@ class Graph
         }
     }
 
-
     // метод добавления ребра в граф
     // source — начальная вершина, destination — конечная вершина, weight — вес ребра
     public void AddEdge(int source, int destination, int weight)
     {
         // проверяет, что индексы вершин находятся в допустимом диапазоне от 0 до vCount-1
-        if (source <= 0 && source < vCount && destination <= 0 && destination < vCount)
+        if (source >= 0 && source < vCount && destination >= 0 && destination < vCount)
         {
             adMatrix[source, destination] = weight; // устанавливает вес ребра между вершинами
         }
