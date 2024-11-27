@@ -23,7 +23,7 @@ namespace Serialization
 
         public override string GetInformation()
         {
-            return
+            return 
                 $"Имя студента: {Name}\n" +
                 $"Дата рождения: {DateOfBirth.ToShortDateString()}\n" +
                 $"Возраст: {GetAge()}\n" +
