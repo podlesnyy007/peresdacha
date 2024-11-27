@@ -40,7 +40,7 @@ namespace Serialization
         static List<Persona> FilterByAge(List<Persona> personas, int fromAge, int toAge)
         {
             List<Persona> filteredPersonas = new List<Persona>();
-            foreach (Persona persona in personas)
+            foreach(Persona persona in personas)
                 if (fromAge <= persona.GetAge() && persona.GetAge() <= toAge)
                     filteredPersonas.Add(persona);
             return filteredPersonas;
@@ -48,14 +48,14 @@ namespace Serialization
 
         static void Print(List<Persona> personas)
         {
-            if (personas.Count == 0)
+            if(personas.Count == 0)
             {
                 Console.WriteLine("Список персон пуст.");
             }
             else
             {
                 Console.WriteLine("Список персон:");
-                foreach (Persona persona in personas)
+                foreach(Persona persona in personas)
                 {
                     Console.WriteLine(persona.GetInformation());
                     Console.WriteLine();
