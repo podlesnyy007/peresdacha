@@ -1,54 +1,21 @@
-/*
-В входном файле указывается количество вершин графа/орграфа и матрица смежности:
-Для заданного графа:
-найти все вершины графа, попадающие в N-периферию для вершины А; 
-*/
-
 using System;
 using System.Collections.Generic;
 using System.IO;
 
 class Graph
 {
-    private int[,] adMatrix; // двумерный массив (матрица смежности) для хранения весов ребер между вершинами
-    private bool[] visited; // массив для отслеживания посещенных вершин при поиске по графу
+    private int[,] adMatrix; // Матрица смежности
+    private bool[] visited; // Массив для отслеживания посещённых вершин
 
-    // конструктор, принимающий матрицу смежности matrix и сохраняющий её в поле adMatrix
+    // Конструктор, принимающий матрицу смежности
     public Graph(int[,] matrix)
     {
         adMatrix = matrix;
-        visited = new bool[matrix.GetLength(0)]; // создает массив visited длиной, равной количеству вершин графа (количеству строк/столбцов матрицы)
+        visited = new bool[matrix.GetLength(0)];
     }
 
-    // Метод FindNode находит вершины, связанные с заданной вершиной startV через ребра с весом weight
-    public List<int> FindNode(int startV, int weight)
-    {
-        Queue<int> queue = new Queue<int>(); // создается очередь для обхода графа
-        queue.Enqueue(startV); // начальная вершина startV добавляется в очередь
-        visited[startV] = true; // помечаем начальную вершину как посещенную
-
-        List<int> result = new List<int>(); //соединяет ребра заданнного веса
-
-        while (queue.Count > 0) // выполняется, пока есть вершины в очереди
-        {
-            int currentV = queue.Dequeue(); // извлекает вершину из очереди
-
-            for (int i = 0; i < adMatrix.GetLength(0); i++) // проверяет смежные вершины
-            {
-                if (adMatrix[currentV, i] == weight && !visited[i]) // если не была посещена, она добавляется в очередь
-                                                                    // и помечается как посещенная, а также добавляется в список result
-                {
-                    queue.Enqueue(i);//добав i в очере
-                    visited[i] = true;
-                    result.Add(i);// добав в спис резул
-                }
-            }
-        }
-        return result;
-    }
-
-    // Метод NovSet сбрасывает массив visited, помечая все вершины как непосещенные
-    public void NovSet()
+    // Сбрасывает массив visited, помечая все вершины как непосещённые
+    public void ResetVisited()
     {
         for (int i = 0; i < visited.Length; i++)
         {
@@ -56,20 +23,22 @@ class Graph
         }
     }
 
-    // Метод Dijkstr реализует алгоритм Дейкстры для нахождения кратчайших путей от вершины v
-    public long[] Dijkstr(int v, out int[] p)
+    // Алгоритм Дейкстры: находит кратчайшие пути от вершины v
+    public long[] Dijkstra(int v, out int[] p) // v - заданная вершина, p[] — массив предшествующих вершин.
     {
-        long[] d = new long[adMatrix.GetLength(0)]; // массив расстояний от начальной вершины v до всех остальных
-        p = new int[adMatrix.GetLength(0)]; // массив, в котором хранится информация, откуда пришли в каждую вершину
-        Array.Fill(d, int.MaxValue); // заполняем
-        d[v] = 0;
+        int n = adMatrix.GetLength(0); // // Получаем количество вершин в графе
+        long[] d = new long[n]; // d[] — массив, в котором хранится кратчайшее расстояние от начальной вершины до каждой вершины
+        p = new int[n]; // массив, в котором хранится информация, откуда пришли в каждую вершину
+        Array.Fill(d, int.MaxValue); // Инициализация расстояний бесконечностью
+        d[v] = 0; // // Расстояние от начальной вершины до самой себя всегда равно 0
 
         // Главный цикл выбирает непосещенную вершину с минимальным расстоянием,
         // помечает её как посещенную и обновляет расстояния до её соседей
-        for (int i = 0; i < adMatrix.GetLength(0); i++)
+        for (int i = 0; i < n; i++)
         {
             int minIndex = -1;
-            for (int j = 0; j < adMatrix.GetLength(0); j++)
+            // Поиск непосещенной вершины с минимальным расстоянием
+            for (int j = 0; j < n; j++)
             {
                 if (!visited[j] && (minIndex == -1 || d[j] < d[minIndex]))
                 {
@@ -77,61 +46,48 @@ class Graph
                 }
             }
 
-            if (d[minIndex] == int.MaxValue)
+            // Если все вершины были посещены или минимальное расстояние стало бесконечным, завершаем цикл
+            if (minIndex == -1 || d[minIndex] == int.MaxValue)
             {
                 break;
             }
 
-            visited[minIndex] = true; //помеч как посещ
+            visited[minIndex] = true; // Помечаем найденную вершину как посещенную
 
-            for (int j = 0; j < adMatrix.GetLength(0); j++)
+            // Обновляем расстояния для соседей текущей вершины
+            for (int j = 0; j < n; j++)
             {
+                // Если существует ребро между вершинами и новое расстояние меньше текущего, обновляем расстояние
                 if (adMatrix[minIndex, j] > 0 && d[minIndex] + adMatrix[minIndex, j] < d[j])
                 {
-                    d[j] = d[minIndex] + adMatrix[minIndex, j];
-                    p[j] = minIndex;
+                    d[j] = d[minIndex] + adMatrix[minIndex, j]; // Обновление расстояния
+                    p[j] = minIndex; // Установка предшествующей вершины
                 }
             }
         }
-        return d;
+        return d; // Возвращаем массив с кратчайшими расстояниями от вершины v до всех остальных
     }
 
-    // Метод InMaxDistance находит вершины, которые находятся на наибольшем расстоянии от вершины v
-    public void InMaxDistance(int v)
+    // Метод для поиска вершин в N-периферии
+    public List<int> FindNPeriphery(int startV, int distance)
     {
-        NovSet(); // сбрасывает метки посещения с помощью NovSet
-        int[] p;
-        long[] d = Dijkstr(v, out p); // Вычисляет кратчайшие расстояния d с помощью алгоритма Дейкстры
-        long max = 0;
+        ResetVisited(); // сбрасывается массив, чтобы избежать ошибок
+        int[] p; // Массив предшествующих вершин
+        long[] d = Dijkstra(startV, out p); // Получаем массив кратчайших расстояний от startV до всех вершин
+        List<int> result = new List<int>(); // Список для хранения вершин на заданном расстоянии
 
-        // Находит максимальное расстояние max среди доступных вершин
-        for (int i = 0; i < p.Length; i++)
+        // Находим вершины, расстояние до которых равно distance
+        for (int i = 0; i < d.Length; i++)
         {
-            if (d[i] > max && d[i] != int.MaxValue)
+            if (d[i] == distance)
             {
-                max = d[i];
+                result.Add(i);
             }
         }
 
-        // Если max == 0, выводит, что другие вершины недостижимы
-        if (max == 0)
-        {
-            Console.WriteLine("Из заданной вершины другие вершины недостижимы");
-        }
-        // Иначе выводит вершины, удаленные на максимальное расстояние max
-        else
-        {
-            Console.Write($"На наибольшем удалении от вершины {v} находятся вершины: ");
-            for (int i = 0; i < d.Length; i++)
-            {
-                if (d[i] == max)
-                {
-                    Console.Write($"{i} ");
-                }
-            }
-            Console.WriteLine();
-        }
+        return result; // Возвращаем список вершин, которые находятся на расстоянии distance от startV
     }
+}
 }
 
 class Program
@@ -141,8 +97,9 @@ class Program
         string fileName = "d:/pr22_2/input.txt";
 
         int[,] adMatrix;
-        int size;
+        int size;  // Переменная для хранения размера графа (число вершин)
 
+        // Чтение матрицы смежности из файла
         using (StreamReader reader = new StreamReader(fileName))
         {
             size = int.Parse(reader.ReadLine());
@@ -159,17 +116,30 @@ class Program
         }
 
         Graph graph = new Graph(adMatrix);
-        int startV = 4;
-        int weightT = 1;
 
-        List<int> nodesW = graph.FindNode(startV, weightT);
-        Console.WriteLine($"Вершины с весом ребер {weightT} относительно вершины {startV}:");
-        foreach (int node in nodesW)
+        // Заданная вершина A и расстояние N
+        Console.Write("Введите расстояние startV: "); // Задать номер вершины A (0 — индекс первой вершины)
+        int startV = int.Parse(Console.ReadLine());
+
+        Console.Write("Введите расстояние N: "); // Задать значение N (расстояние для периферии)
+        int N = int.Parse(Console.ReadLine());
+
+        // Поиск N-периферии
+        List<int> nPeriphery = graph.FindNPeriphery(startV, N);
+        Console.WriteLine($"Вершины на расстоянии {N} от вершины {startV}:");
+
+        // Вывод результатов
+        if (nPeriphery.Count == 0)
         {
-            Console.Write(node + " ");
+            Console.WriteLine("Нет вершин в указанной N-периферии.");
         }
-
-        // Находит и выводит вершины, наиболее удаленные от startV
-        graph.InMaxDistance(startV);
+        else
+        {
+            foreach (int node in nPeriphery)
+            {
+                Console.Write(node + " ");
+            }
+            Console.WriteLine();
+        }
     }
 }
